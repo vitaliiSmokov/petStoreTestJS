@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert'
-import {PetController} from '../api/controller/pet.controller'
+import { PetController } from '../api/controller/pet.controller'
 
 const petController = new PetController();
 
@@ -12,7 +12,7 @@ describe('User can', function () {
     });
 
     it('receive pet by status', async function () {
-        
+
         let body = await petController.findByStatus('available');
 
         assert(body.length > 0);
@@ -35,13 +35,14 @@ describe('User can', function () {
 
     it('receive pet by tag', async function () {
 
-        const body = await petController.findByTags('tag1');
+        const testTag = 'tag1';
 
-        assert(body.length > 0);
+        const body = await petController.findByTags(testTag);
+
+        assert(body.length > 0, `Pets by tag '${testTag}' are not found`);
         assert(body.every(
             (pet: any) => pet.tags.some(
-                (tag: any) => tag.name == 'tag1')
-            )
-        )
+                (tag: any) => tag.name == testTag)
+        ), `Every returned pet sould contain ${testTag}`)
     })
 })
