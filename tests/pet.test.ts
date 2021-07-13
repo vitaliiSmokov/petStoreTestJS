@@ -1,37 +1,32 @@
-import got from 'got'
 import { strict as assert } from 'assert'
-import { URLSearchParams } from 'url'
+import {PetController} from '../api/controller/pet.controller'
+
+const petController = new PetController();
 
 describe('User can', function () {
     it('receive pet by ID', async function () {
-        const response = await got('https://petstore.swagger.io/v2/pet/1');
-        const body = JSON.parse(response.body);
+
+        const body = await petController.getById(1);
+
         assert(body.id == 1, `Expected 1, but got ${body.id}`);
     });
 
     it('receive pet by status', async function () {
-        let res = await got('https://petstore.swagger.io/v2/pet/findByStatus', {
-            searchParams: { status: 'available' }
-        });
-        let body = JSON.parse(res.body);
+        
+        let body = await petController.findByStatus('available');
+
         assert(body.length > 0);
 
-        res = await got('https://petstore.swagger.io/v2/pet/findByStatus', {
-            searchParams: { status: 'pending' }
-        });
-        body = JSON.parse(res.body);
+        body = await petController.findByStatus('pending');
+
         assert(body.length > 0);
 
-        res = await got('https://petstore.swagger.io/v2/pet/findByStatus', {
-            searchParams: { status: 'sold' }
-        });
-        body = JSON.parse(res.body);
+        body = await petController.findByStatus('sold');
+
         assert(body.length > 0);
 
-        res = await got('https://petstore.swagger.io/v2/pet/findByStatus', {
-            searchParams: new URLSearchParams({ status: ['pending', 'available'] })
-        });
-        body = JSON.parse(res.body);
+        body = await petController.findByStatus(['pending', 'available']);
+
         assert(body.length > 0);
         assert(body.some((pet: any) => pet.status == 'available'))
         assert(body.some((pet: any) => pet.status == 'pending'))
@@ -39,13 +34,14 @@ describe('User can', function () {
     });
 
     it('receive pet by tag', async function () {
-        const res = await got('https://petstore.swagger.io/v2/pet/findByTags', {
-            searchParams: { tags: 'tag1' }
-        });
-        const body = JSON.parse(res.body);
+
+        const body = await petController.findByTags('tag1');
+
         assert(body.length > 0);
-        assert(body.some(
+        assert(body.every(
             (pet: any) => pet.tags.some(
-                (tag: any) => tag.name == 'tag1')))
+                (tag: any) => tag.name == 'tag1')
+            )
+        )
     })
 })
